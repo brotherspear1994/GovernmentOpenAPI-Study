@@ -254,6 +254,12 @@ f.close()
 
 
 
+## 결과물 조회
+
+![result](README.assets/result.png)
+
+
+
 ## 참조한 주요 공식문서
 
 - [python xml.etree.ElementTree 공식문서](https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element)
