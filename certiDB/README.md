@@ -227,6 +227,163 @@ f.close()
 
 
 
+### Statistics Data load2
+
+- 팀원 요청에 따른 데이터 전면 수정
+
+```python
+import requests
+from bs4 import BeautifulSoup
+import xml.etree.ElementTree as ET
+from xml.etree.ElementTree import Element, dump
+
+# 한국산업인력공단_국가자격취득자 현황 조회 서비스
+# T: 3408개 for pageNo in range(1, 70)
+# C: 677개 for pageNo in range(1, 15):
+# W: 295개 for pageNo in range(1, 7):
+
+# 없는 종목코드 데이터 삽입 방지
+# csv 파일 읽기
+import csv
+
+check = []
+with open('certificate.csv', 'r', encoding='utf-8') as f:
+    rdr = csv.reader(f)
+    for certi_code in rdr:
+        check = certi_code
+
+statistics = {} # statistics table에 담을 data
+
+# 자격구분 코드로 인한 idx 3회 순환.
+for year in range(2016, 2021):
+    for idx in range(3):
+        print("한 자격구분 코드 완료")
+        # 자격구분 코드 T
+        if idx == 0:
+            qualgbCd = "T"
+            for pageNo in range(1, 70):
+            # for pageNo in range(1, 3):
+                url = "http://apis.data.go.kr/B490007/qualAcquPtcond/getQualAcquPtcond?numOfRows=50&pageNo={}&dataFormat=xml&acquYy={}&qualgbCd={}&serviceKey=".format(pageNo, year, qualgbCd)
+                key = "pg48D3FYflY8PkE9Vhd%2FkHGfCpn6iggpyOE7SJfTfGmA%2Bjw%2FpOka%2B0o2gw6CWR0XvRmCi62UbbJfxqQ8UDBCEQ%3D%3D"
+                url += key
+
+                response = requests.get(url).content
+                soup = BeautifulSoup(response, 'html.parser')
+                doc = ET.fromstring(str(soup))
+                iter_elem = doc.iter(tag="item")
+
+                for elem in iter_elem:
+                    statistic = {}
+                    check_cd = elem.find('jmcd').text
+                    if check_cd not in check:
+                        continue
+                    # 데이터 리스트에 담기.
+                    agegrupcd = elem.find('agegrupcd').text
+                    gendercd = elem.find('gendercd').text
+                    if check_cd+agegrupcd+gendercd in statistics:
+                        statistics[check_cd+agegrupcd+gendercd]['acqucnt'] += int(elem.find('acqucnt').text)
+                    else:
+                        statistic['agegrupnm'] = elem.find('agegrupnm').text
+                        statistic['gendernm'] = elem.find('gendernm').text
+                        statistic['acqucnt'] = int(elem.find('acqucnt').text)
+                        statistic['jmcd'] = elem.find('jmcd').text
+                        statistics[check_cd+agegrupcd+gendercd] = (statistic)
+        # 자격 구분 코드 C
+        elif idx == 1:
+            qualgbCd = "C"
+            for pageNo in range(1, 15):
+            # for pageNo in range(1, 3):
+                url = "http://apis.data.go.kr/B490007/qualAcquPtcond/getQualAcquPtcond?numOfRows=50&pageNo={}&dataFormat=xml&acquYy=2021&qualgbCd={}&serviceKey=".format(pageNo, qualgbCd)
+                key = "pg48D3FYflY8PkE9Vhd%2FkHGfCpn6iggpyOE7SJfTfGmA%2Bjw%2FpOka%2B0o2gw6CWR0XvRmCi62UbbJfxqQ8UDBCEQ%3D%3D"
+                url += key
+
+                response = requests.get(url).content
+                soup = BeautifulSoup(response, 'html.parser')
+                doc = ET.fromstring(str(soup))
+                iter_elem = doc.iter(tag="item")
+                for elem in iter_elem:
+                    statistic = {}
+                    check_cd = elem.find('jmcd').text
+                    if check_cd not in check:
+                        continue
+                    # 데이터 리스트에 담기.
+                    agegrupcd = elem.find('agegrupcd').text
+                    gendercd = elem.find('gendercd').text
+                    if check_cd+agegrupcd+gendercd in statistics:
+                        statistics[check_cd+agegrupcd+gendercd]['acqucnt'] += int(elem.find('acqucnt').text)
+                    else:
+                        statistic['agegrupnm'] = elem.find('agegrupnm').text
+                        statistic['gendernm'] = elem.find('gendernm').text
+                        statistic['acqucnt'] = int(elem.find('acqucnt').text)
+                        statistic['jmcd'] = elem.find('jmcd').text
+                        statistics[check_cd+agegrupcd+gendercd] = (statistic)
+        # 자격 구분 코드 W
+        elif idx == 2:
+            qualgbCd = "W"
+            for pageNo in range(1, 7):
+            # for pageNo in range(1, 3):
+                url = "http://apis.data.go.kr/B490007/qualAcquPtcond/getQualAcquPtcond?numOfRows=50&pageNo={}&dataFormat=xml&acquYy=2021&qualgbCd={}&serviceKey=".format(pageNo, qualgbCd)
+                key = "pg48D3FYflY8PkE9Vhd%2FkHGfCpn6iggpyOE7SJfTfGmA%2Bjw%2FpOka%2B0o2gw6CWR0XvRmCi62UbbJfxqQ8UDBCEQ%3D%3D"
+                url += key
+
+                response = requests.get(url).content
+                soup = BeautifulSoup(response, 'html.parser')
+                doc = ET.fromstring(str(soup))
+                iter_elem = doc.iter(tag="item")
+                for elem in iter_elem:
+                    statistic = {}
+                    check_cd = elem.find('jmcd').text
+                    if check_cd not in check:
+                        continue
+                    # 데이터 리스트에 담기.
+                    agegrupcd = elem.find('agegrupcd').text
+                    gendercd = elem.find('gendercd').text
+                    if check_cd+agegrupcd+gendercd in statistics:
+                        statistics[check_cd+agegrupcd+gendercd]['acqucnt'] += int(elem.find('acqucnt').text)
+                    else:
+                        statistic['agegrupnm'] = elem.find('agegrupnm').text
+                        statistic['gendernm'] = elem.find('gendernm').text
+                        statistic['acqucnt'] = int(elem.find('acqucnt').text)
+                        statistic['jmcd'] = elem.find('jmcd').text
+                        statistics[check_cd+agegrupcd+gendercd] = (statistic)
+
+# 남성과 여성 성별 숫자 따로 총합 내기.
+statistics_list = [st for st in statistics.values()]
+new_statistics_dictionary = dict()
+for statistic in statistics_list:
+    jmcd = statistic['jmcd']
+    agegrupnm = statistic['agegrupnm']
+    gendernm = statistic['gendernm']
+    acqucnt = statistic['acqucnt']
+    if agegrupnm == '80대' or agegrupnm == '90대' or agegrupnm == '100대': continue
+    if jmcd in new_statistics_dictionary:
+        new_statistics_dictionary[jmcd][gendernm] += acqucnt
+        new_statistics_dictionary[jmcd][agegrupnm] += acqucnt
+    else:
+        if gendernm == '남성':
+            new_statistics_dictionary[jmcd] = {'50대': 0, '40대': 0, '남성': acqucnt, '70대': 0, '60대': 0, '10대': 0, '30대':0, '20대': 0, '여성': 0, 'jmcd': jmcd}
+        elif gendernm == '여성':
+            new_statistics_dictionary[jmcd] = {'50대': 0, '40대': 0, '남성': 0, '70대': 0, '60대': 0, '10대': 0,
+                                               '30대': 0, '20대': 0, '여성': acqucnt, 'jmcd': jmcd}
+
+final_statistic = [value for value in new_statistics_dictionary.values()]
+
+# sql문 저장
+f = open('statistic.sql', 'w', encoding='utf8')
+for statistic in final_statistic:
+    s = "insert into statistics (fifty, fourty, statistic_man, seventy, sixty, teen, thirty, twenty, statistic_women, certificate_code) values ("
+    for value in statistic.values():
+        if type(value) == int:
+            value = str(value)
+        s += "'"+value.strip()+"', "
+    s = s.rstrip(', ')
+    s += ");\n"
+    f.write(s)
+f.close()
+```
+
+
+
 ### Statistics DDL
 
 ```sql
